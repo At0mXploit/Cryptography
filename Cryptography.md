@@ -1,8 +1,3 @@
----
-tags:
-  - PwnCollege
-  - Crypto
----
 # Symmetric Cryptography
 
 Symmetric cryptography uses a single secret key for both encrypting and decrypting data, ensuring that only parties with the key can access the original information.
