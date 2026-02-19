@@ -1,0 +1,18 @@
+# Given RSA parameters
+p = 857504083339712752489993810777
+q = 1029224947942998075080348647219
+e = 65537
+N = 882564595536224140639625987659416029426239230804614613279163
+c = 77578995801157823671636298847186723593814843845525223303932
+
+# Step 1: Compute Euler's totient
+phi_N = (p - 1) * (q - 1)
+
+# Step 2: Compute private key d
+d = pow(e, -1, phi_N)
+
+# Step 3: Decrypt ciphertext
+m = pow(c, d, N)
+
+print(m)
+
