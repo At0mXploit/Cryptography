@@ -1,0 +1,57 @@
+from Crypto.Util.number import long_to_bytes
+from sympy import sqrt_mod
+
+# RSA modulus
+# In this challenge n behaves like a prime modulus,
+# so arithmetic happens inside the finite field F_n.
+n = 27772857409875257529415990911214211975844307184430241451899407838750503024323367895540981606586709985980003435082116995888017731426634845808624796292507989171497629109450825818587383112280639037484593490692935998202437639626747133650990603333094513531505209954273004473567193235535061942991750932725808679249964667090723480397916715320876867803719301313440005075056481203859010490836599717523664197112053206745235908610484907715210436413015546671034478367679465233737115549451849810421017181842615880836253875862101545582922437858358265964489786463923280312860843031914516061327752183283528015684588796400861331354873
+
+# Public exponent
+# e = 16 = 2^4
+e = 16
+
+# Ciphertext
+ct = 11303174761894431146735697569489134747234975144162172162401674567273034831391936916397234068346115459134602443963604063679379285919302225719050193590179240191429612072131629779948379821039610415099784351073443218911356328815458050694493726951231241096695626477586428880220528001269746547018741237131741255022371957489462380305100634600499204435763201371188769446054925748151987175656677342779043435047048130599123081581036362712208692748034620245590448762406543804069935873123161582756799517226666835316588896306926659321054276507714414876684738121421124177324568084533020088172040422767194971217814466953837590498718
+
+# Why normal RSA decryption fails:
+# Normally we compute d = e^{-1} mod phi(n).
+# If n is prime, phi(n) = n - 1.
+# Here gcd(16, n-1) ≠ 1, so 16 has no modular inverse.
+# That means we cannot compute a private exponent.
+#
+# Instead, we solve:
+#     m^16 ≡ ct (mod n)
+#
+# Since 16 = 2^4, we can recover m by taking
+# four successive modular square roots.
+
+# Start with the ciphertext as our initial candidate list
+roots = [ct]
+
+# Each iteration takes square roots of all current candidates
+# After 1 iteration: we solve x^2 ≡ ct
+# After 2 iterations: we solve x^4 ≡ ct
+# After 3 iterations: x^8 ≡ ct
+# After 4 iterations: x^16 ≡ ct
+for _ in range(4):
+    new_roots = []
+    for value in roots:
+        # sqrt_mod returns all square roots of value modulo n
+        square_roots = sqrt_mod(value, n, all_roots=True)
+        new_roots.extend(square_roots)
+    roots = new_roots
+
+# At this point, roots contains all possible solutions to:
+#     m^16 ≡ ct (mod n)
+#
+# There will be multiple solutions because exponentiation
+# is not injective when 16 divides n-1.
+
+# Try converting each candidate to bytes.
+# The correct plaintext will be readable ASCII.
+for candidate in roots:
+    try:
+        plaintext = long_to_bytes(candidate)
+        print(plaintext)
+    except:
+        pass
